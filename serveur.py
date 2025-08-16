@@ -2,6 +2,7 @@ from flask import Flask, send_from_directory , render_template
 from flask_socketio import SocketIO
 import random
 app = Flask(__name__)
+app.config['SECRET_KEY'] = '6joqhm3h'
 socketio = SocketIO(app)
 
 listeJoueur = []
