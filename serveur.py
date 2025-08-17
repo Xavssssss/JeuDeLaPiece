@@ -1,9 +1,12 @@
 from flask import Flask, send_from_directory , render_template
 from flask_socketio import SocketIO
 import random
+import os
+import eventlet
+eventlet.monkey_patch()
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '6joqhm3h'
-socketio = SocketIO(app)
+socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*")
 
 listeJoueur = []
 listePseudo = []
@@ -89,5 +92,5 @@ def envoyerRes(data):
     socketio.emit('ResPileFace',res)
    
 if __name__ == '__main__':
-    print("Serveur lancé sur http://127.0.0.1:8080")
+    print("Serveur lancé")
     socketio.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))

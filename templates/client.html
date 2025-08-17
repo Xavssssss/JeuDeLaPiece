@@ -152,7 +152,10 @@ button:hover { transform: scale(1.1); background-color: #FF4500; }
     </div>
     
     <script>
-        var socket = io();
+        var socket = io({
+            transports: ['websocket'],
+            upgrade: false
+        });
         var choix;
         var questionActuelle = "";
         
