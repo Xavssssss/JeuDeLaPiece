@@ -174,15 +174,25 @@
         }
 
         function afficherPieceAvantResultat() {
-            const resDiv = document.getElementById("ResPileFace");
-            const coin = document.getElementById("coin");
-            const affichage = document.getElementById("resultat");
-        
-            resDiv.style.display = 'block';
-            coin.style.transition = "none";
-            coin.style.transform = "rotateY(0deg)";
-            affichage.textContent = "";
+        const resDiv = document.getElementById("ResPileFace");
+        const coin = document.getElementById("coin");
+        const affichage = document.getElementById("resultat");
+
+        // ⬇️ Nettoyage immédiat des éléments du round précédent
+        const oldQ = document.getElementById("affQuest");
+        if (oldQ) oldQ.remove();
+        const oldBtnShow = document.getElementById("btnAfficherQuestion");
+        if (oldBtnShow) oldBtnShow.remove();
+        const oldBtnNew = document.getElementById("btnNewRound");
+        if (oldBtnNew) oldBtnNew.remove();
+
+        // reset visuel de la pièce + efface le texte de résultat
+        resDiv.style.display = 'block';
+        coin.style.transition = "none";
+        coin.style.transform = "rotateY(0deg)";
+        affichage.textContent = "";
         }
+
 
         // --------- FONCTIONS DE JEU ---------
         function rejoindreJeu() {
