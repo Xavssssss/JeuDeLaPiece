@@ -1,41 +1,29 @@
-from flask import Flask, send_from_directory , render_template
-from flask_socketio import SocketIO
-import random
 import os
+import random
+import uuid
 import eventlet
 eventlet.monkey_patch()
+
+from flask import Flask, render_template, request
+from flask_socketio import SocketIO, join_room
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '6joqhm3h'
 socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*")
 
-listeJoueur = []
-listePseudo = []
-Questions = []
-
-def tirage(listePseudo):
-    global listeJoueur
-    nomSortie = random.choice(listeJoueur)
-    listeF = [i for i in listePseudo if i !=nomSortie]
-    listeJoueur.extend(listeF)
-    return nomSortie
+# Chaque room est une partie indépendante
+rooms = {}
 
 def PileFace():
-    nb=random.randint(0,1)
-    if nb==0:
-        return 'pile'
-    else:
-        return 'face'
+    return 'pile' if random.randint(0,1) == 0 else 'face'
 
 def charger_questions(fichier):
-    """Retourne une liste contenant toutes les questions du fichier."""
-    global Questions
     with open(fichier, "r", encoding="utf-8") as f:
-        Questions = [ligne.strip() for ligne in f]
+        return [ligne.strip() for ligne in f]
 
 def tirer_question(liste_questions):
-    """Retourne une question aléatoire et la retire de la liste."""
     if not liste_questions:
-        return None  # plus de questions disponibles
+        return None
     question = random.choice(liste_questions)
     liste_questions.remove(question)
     return question
@@ -44,53 +32,69 @@ def tirer_question(liste_questions):
 def index():
     return render_template('client.html')
 
+# ----------- SOCKET EVENTS ------------
+
+@socketio.on('createRoom')
+def createRoom():
+    """Crée une room unique pour un joueur"""
+    room_id = str(uuid.uuid4())[:8]  # id court ex: 'a1b2c3d4'
+    rooms[room_id] = {
+        "joueurs": [],
+        "questions": charger_questions("question.txt")
+    }
+    join_room(room_id)
+    socketio.emit("roomCreated", room_id, to=request.sid)  # renvoie au client son id unique
+    print("Nouvelle room créée:", room_id)
+
 @socketio.on('NouvJoueur')
-def ajoutJoueur(pseudo):
-    global listeJoueur
-    global listePseudo
-    if pseudo not in listeJoueur:
-        listeJoueur.append(pseudo)
-        listePseudo.append(pseudo)
-        print(pseudo, "ajouté")
-    socketio.emit('majListe', listeJoueur)  # on renvoie la liste complète
-    print(listeJoueur)
+def ajoutJoueur(data):
+    room = data['room']
+    pseudo = data['pseudo']
+
+    if room in rooms and pseudo not in rooms[room]["joueurs"]:
+        rooms[room]["joueurs"].append(pseudo)
+        print(pseudo, "ajouté dans", room)
+
+    socketio.emit('majListe', rooms[room]["joueurs"], to=room)
 
 @socketio.on('SupprimerJoueur')
-def supprimerJoueur(pseudo):
-    global listeJoueur
-    if pseudo in listeJoueur:
-        listeJoueur.remove(pseudo)
-        listePseudo.remove(pseudo)
-        print(pseudo, "supprimé")
-    socketio.emit('majListe', listeJoueur)  # on renvoie la liste complète
-    print(listeJoueur)
+def supprimerJoueur(data):
+    room = data['room']
+    pseudo = data['pseudo']
+    if room in rooms and pseudo in rooms[room]["joueurs"]:
+        rooms[room]["joueurs"].remove(pseudo)
+        print(pseudo, "supprimé de", room)
+    socketio.emit('majListe', rooms[room]["joueurs"], to=room)
 
 @socketio.on('chargerQuestion')
 def charger(data):
-    print("on charge les question")
-    charger_questions('question.txt')
+    room = data['room']
+    if room in rooms:
+        rooms[room]["questions"] = charger_questions('question.txt')
+        print("Questions rechargées pour", room)
 
 @socketio.on('lancerRound')
 def lancerRound(data):
-    global listeJoueur
-    print("Round Lancer")
-    joueurEnCours = tirage(listePseudo)
-    print("Le joueur choisie est "+joueurEnCours)
-    socketio.emit('AfficheNomJoueurR',joueurEnCours)
+    room = data['room']
+    if room in rooms and rooms[room]["joueurs"]:
+        joueurEnCours = random.choice(rooms[room]["joueurs"])
+        socketio.emit('AfficheNomJoueurR', joueurEnCours, to=room)
 
 @socketio.on('demandeQuestion')
 def demanderQuestion(data):
-    global Questions
-    question = tirer_question(Questions)
-    socketio.emit('AfficherQuestion',question)
-    print("question envoyé " + question)
-    
+    room = data['room']
+    if room in rooms:
+        question = tirer_question(rooms[room]["questions"])
+        socketio.emit('AfficherQuestion', question, to=room)
 
 @socketio.on("envoyerResPileFace")
 def envoyerRes(data):
-    res=PileFace()
-    socketio.emit('ResPileFace',res)
-   
+    room = data['room']
+    res = PileFace()
+    socketio.emit('ResPileFace', res, to=room)
+
+# ----------- MAIN -----------
+
 if __name__ == '__main__':
-    print("Serveur lancé")
+    print("Serveur lancé avec rooms isolées")
     socketio.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
