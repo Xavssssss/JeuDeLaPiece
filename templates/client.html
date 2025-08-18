@@ -218,6 +218,7 @@
             afficherPieceAvantResultat();
             socket.emit("envoyerResPileFace", {room: room});
             document.getElementById("ChoixPileFace").style.display = 'none';
+            document.getElementById("LaQuestion").innerHTML = "";
         }
         
         function envoyerChoixF() {
@@ -225,6 +226,7 @@
             afficherPieceAvantResultat();
             socket.emit("envoyerResPileFace", {room: room});
             document.getElementById("ChoixPileFace").style.display = 'none';
+            document.getElementById("LaQuestion").innerHTML = "";
         }
         
         function lancerAnimationPileFace(resultat) {
