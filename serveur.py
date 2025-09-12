@@ -5,6 +5,7 @@ eventlet.monkey_patch()
 
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, join_room
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '6joqhm3h'
 socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*")
@@ -12,9 +13,7 @@ socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*")
 # Dictionnaire des rooms indépendantes
 rooms = {}
 
-def tirage(listePseudo):
-    nomSortie = random.choice(listePseudo)
-    return nomSortie
+# ---------------- FONCTIONS ----------------
 
 def PileFace():
     return 'pile' if random.randint(0,1) == 0 else 'face'
@@ -30,6 +29,22 @@ def tirer_question(liste_questions):
     liste_questions.remove(question)
     return question
 
+def tirage(room):
+    """Tire un joueur en pondérant : les autres gagnent +1 chance à chaque tirage"""
+    if not rooms[room]["tirage"]:
+        return None
+
+    nomSortie = random.choice(rooms[room]["tirage"])
+
+    # Ajouter +1 chance à tous les autres joueurs
+    for joueur in rooms[room]["base"]:
+        if joueur != nomSortie:
+            rooms[room]["tirage"].append(joueur)
+
+    return nomSortie
+
+# ---------------- ROUTE ----------------
+
 @app.route('/')
 def index():
     return render_template('client.html')
@@ -43,11 +58,15 @@ def ajoutJoueur(data):
     pseudo = data['pseudo']
 
     if room not in rooms:
-        rooms[room] = {"joueurs": [], "pseudos": [], "questions": charger_questions("question.txt")}
+        rooms[room] = {
+            "joueurs": [],
+            "questions": charger_questions("question.txt"),
+            "base": [],      # liste fixe des pseudos
+            "tirage": []     # liste dynamique qui évolue
+        }
     
     if pseudo not in rooms[room]["joueurs"]:
         rooms[room]["joueurs"].append(pseudo)
-        rooms[room]["pseudos"].append(pseudo)
         print(pseudo, "ajouté dans", room)
 
     join_room(room)
@@ -59,7 +78,6 @@ def supprimerJoueur(data):
     pseudo = data['pseudo']
     if room in rooms and pseudo in rooms[room]["joueurs"]:
         rooms[room]["joueurs"].remove(pseudo)
-        rooms[room]["pseudos"].remove(pseudo)
         print(pseudo, "supprimé de", room)
     socketio.emit('majListe', rooms[room]["joueurs"], to=room)
 
@@ -73,9 +91,16 @@ def charger(data):
 @socketio.on('lancerRound')
 def lancerRound(data):
     room = data['room']
-    if room in rooms and rooms[room]["pseudos"]:
-        joueurEnCours = tirage(rooms[room]["pseudos"])
+
+    if room in rooms and rooms[room]["joueurs"]:
+        # Initialisation des listes au premier round
+        if not rooms[room]["base"]:
+            rooms[room]["base"] = rooms[room]["joueurs"][:]
+            rooms[room]["tirage"] = rooms[room]["joueurs"][:]
+
+        joueurEnCours = tirage(room)
         print("Round lancé dans", room, "->", joueurEnCours)
+        print("Liste de tirage actuelle :", rooms[room]["tirage"])
         socketio.emit('AfficheNomJoueurR', joueurEnCours, to=room)
 
 @socketio.on('demandeQuestion')
