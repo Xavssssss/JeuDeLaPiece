@@ -6,27 +6,40 @@
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
 
   <style>
+    /* --- Palette de couleurs dans :root --- */
+:root {
+  --couleur1: #FFD699;   /* jaune clair */
+  --couleur2: #FF7F50;   /* corail */
+  --couleur3: #FF5722;   /* orange foncé */
+
+  --couleur-texte: #3B2F2F;
+  --couleur-accent: #E67E22;
+  --couleur-border: #FFA07A;
+  --couleur-focus: #FF4500;
+
+  --joueur-bg: #FFE4C4;
+  --coin-front: #FF8C00;
+  --coin-back: #D35400;
+
+  --couleur-index : #FFFFFF;
+  --white: #FFFFFF;
+  --black: #000000;
+}
+
 /* --- Style général --- */
 body {
   font-family: 'Arial', sans-serif;
-
-  /* Dégradé symétrique */
   background: linear-gradient(
     315deg,
-    #FFD699,
-    #FF7F50,
-    #FF5722,
-    #FF7F50,
-    #FFD699,
-    #FF7F50,
-    #FF5722,
-    #FF7F50,
-    #FFD699
+    var(--couleur1),
+    var(--couleur2),
+    var(--couleur3),
+    var(--couleur2),
+    var(--couleur1)
   );
   background-size: 400% 400%;
   animation: waveMove 30s linear infinite;
-
-  color: #3B2F2F;
+  color: var(--couleur-texte);
   margin: 0;
   padding: 0;
   display: flex;
@@ -35,50 +48,47 @@ body {
   min-height: 100vh;
 }
 
-/* Titres — même gradient que body */
-#titre {
-  font-family: 'Fredoka One', cursive;
-  font-size: 4rem;
-  font-weight: bold;
-  text-align: center;
-
-  /* Même gradient que body */
-  background: linear-gradient(
-    315deg,
-    #FFD699,
-    #FF7F50,
-    #FF5722,
-    #FF7F50,
-    #FFD699,
-    #FF7F50,
-    #FF5722,
-    #FF7F50,
-    #FFD699
-  );
-  background-size: 400% 400%;
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-
-  /* Même animation */
-  animation: waveMove 30s linear infinite;
-}
-
 /* Animation diagonale ↘ */
 @keyframes waveMove {
   0%   { background-position: 100% 100%; }
   100% { background-position: 0% 0%; }
 }
 
+/* Titres */
+#titre {
+  font-family: 'Fredoka One', cursive;
+  font-size: 4rem;
+  font-weight: bold;
+  text-align: center;
+
+  background: linear-gradient(
+    315deg,
+    var(--couleur1),
+    var(--couleur2),
+    var(--couleur3),
+    var(--couleur2),
+    var(--couleur1)
+  );
+  background-size: 400% 400%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  animation: waveMove 30s linear infinite;
+}
+
+h1 { margin-bottom: 25px; font-size: 2.5em; }
+h3 { color: var(--couleur-accent); margin-bottom: 15px; font-size: 1.5em; }
+
 /* Conteneurs principaux */
 #index, #round, #ChoixPileFace, #ResPileFace {
-  background-color: rgba(255, 255, 255, 0.95);
+  background-color: var(--couleur-index);
+  color: var(--couleur-texte);
   padding: 2%;
   border-radius: 20px;
   box-shadow: 0 8px 25px rgba(0,0,0,0.25);
   width: 75vw;
   min-height: 75vh;
-  height: auto;
   max-width: 1200px;
   max-height: none;
   text-align: center;
@@ -91,11 +101,9 @@ body {
   perspective: 800px;
 }
 
-/* Titres */
-h1 { margin-bottom: 25px; font-size: 2.5em; }
-h3 { color: #E67E22; margin-bottom: 15px; font-size: 1.5em; }
+#index { max-height: 90vh; overflow-y: auto; }
 
-/* --- Nouveau style pour l’input + bouton sur la même ligne --- */
+/* --- Input + bouton sur la même ligne --- */
 #joinContainer {
   display: flex;
   justify-content: center;
@@ -109,61 +117,40 @@ h3 { color: #E67E22; margin-bottom: 15px; font-size: 1.5em; }
   font-size: 16px;
   width: 200px;
   border-radius: 12px;
-  border: 1px solid #FFA07A;
+  border: 1px solid var(--couleur-border);
   transition: all 0.2s;
 }
 
 #joinContainer input[type="text"]:focus {
-  border-color: #FF4500;
+  border-color: var(--couleur-focus);
   box-shadow: 0 0 5px rgba(255, 69, 0, 0.5);
   outline: none;
 }
 
+/* Boutons généraux */
 button {
-  /* Gradient identique au body/titre */
   background: linear-gradient(
     315deg,
-    #FFD699,
-    #FF7F50,
-    #FF5722,
-    #FF7F50,
-    #FFD699,
-    #FF7F50,
-    #FF5722,
-    #FF7F50,
-    #FFD699
+    var(--couleur1),
+    var(--couleur2),
+    var(--couleur3),
+    var(--couleur2),
+    var(--couleur1)
   );
   background-size: 400% 400%;
-  color: white;
+  color: var(--white);
   border: none;
   border-radius: 12px;
   padding: 12px 25px;
   font-size: 18px;
   cursor: pointer;
   transition: transform 0.2s, background-color 0.2s;
-  
-  /* Clip text si tu veux seulement pour le texte */
-  /* background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; */
-  
-  /* Animation */
   animation: waveMove 30s linear infinite;
 }
 
 button:hover {
   transform: scale(1.1);
-}
-
-button:hover {
-  transform: scale(1.1);
-  background-color: #FF4500;
-}
-
-/* Pile / Face */
-#ChoixPileFace { display: none; }
-#ChoixPileFace button img { width: 120px; height: 120px; }
-
-#commencer {
-  margin-top: 20px;
+  background-color: var(--couleur-focus);
 }
 
 /* Pièce animée */
@@ -175,6 +162,7 @@ button:hover {
 }
 
 #coin .face img { width: 100px; height: 100px; }
+
 #coin {
   width: 100%;
   height: 100%;
@@ -182,6 +170,7 @@ button:hover {
   transform-style: preserve-3d;
   transition: transform 3s ease-out;
 }
+
 .face {
   position: absolute;
   width: 160px;
@@ -192,25 +181,26 @@ button:hover {
   justify-content: center;
   font-size: 32px;
   font-weight: bold;
-  color: white;
+  color: var(--white);
   border-radius: 50%;
 }
-.front { background: #FF8C00; }
-.back { background: #D35400; transform: rotateY(180deg); }
+
+.front { background: var(--coin-front); }
+.back { background: var(--coin-back); transform: rotateY(180deg); }
 
 /* Liste des joueurs */
 #listeJoueurs {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* 4 colonnes */
-  gap: 20px;                             /* espace entre les cartes */
-  justify-items: stretch;                 /* chaque joueur prend toute la largeur de sa colonne */
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  justify-items: stretch;
   align-items: start;
   margin-top: 10px;
 }
 
 #listeJoueurs div {
-  background-color: #FFE4C4; 
-  color: #3B2F2F;
+  background-color: var(--joueur-bg);
+  color: var(--couleur-texte);
   gap : 10px;
   padding: 20px 25px;
   border-radius: 12px;
@@ -231,8 +221,8 @@ button:hover {
 }
 
 #listeJoueurs div button {
-  background-color: #FF8C00;
-  color: white;
+  background-color: var(--coin-front);
+  color: var(--white);
   border: none;
   border-radius: 8px;
   padding: 6px 12px;
@@ -242,33 +232,80 @@ button:hover {
 }
 
 #listeJoueurs div button:hover {
-  background-color: #FF4500;
+  background-color: var(--couleur-focus);
   transform: scale(1.1);
 }
 
-/* Responsive pour que la grille s’adapte */
+/* Boutons thèmes flottants diagonaux */
+#btnCouleur {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: 10px;
+  z-index: 1000;
+}
+
+#btnCouleur button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border : 2px solid black;
+  cursor: pointer;
+}
+
+/* Rouge / Orange avec diagonale */
+#themeClair {
+  background: linear-gradient(
+    315deg,
+    #FFD699,
+    #FF7F50,
+    #FF5722
+  );
+  border: 2px solid black;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  background-size: 200% 200%;
+  animation: waveMove 30s linear infinite; /* animation indépendante */
+}
+
+#themeSombre {
+  background: linear-gradient(
+    315deg,
+    #4b0082,
+    #6a5acd,
+    #00008b
+  );
+  border: 2px solid black;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  background-size: 200% 200%;
+  animation: waveMove 30s linear infinite; /* animation indépendante */
+}
+
+
+/* Pile / Face */
+#ChoixPileFace { display: none; }
+#ChoixPileFace button img { width: 120px; height: 120px; }
+
+#commencer { margin-top: 20px; }
+
+/* Responsive */
 @media (max-width: 1024px) {
   #listeJoueurs { grid-template-columns: repeat(3, 1fr); }
-}
-@media (max-width: 768px) {
-  #listeJoueurs { grid-template-columns: repeat(2, 1fr); }
-}
-@media (max-width: 480px) {
-  #listeJoueurs { grid-template-columns: 1fr; }
-}
-
-#index { max-height: 90vh; overflow-y: auto; }
-
-/* --- Responsive --- */
-@media (max-width: 1024px) {
   #index, #round, #ChoixPileFace, #ResPileFace {
     width: 85vw;
     height: auto;
     padding: 4%;
   }
-  #listeJoueurs { grid-template-columns: repeat(3, 1fr); }
 }
+
 @media (max-width: 768px) {
+  #listeJoueurs { grid-template-columns: repeat(2, 1fr); }
   #index, #round, #ChoixPileFace, #ResPileFace {
     width: 90vw;
     height: auto;
@@ -276,9 +313,10 @@ button:hover {
     font-size: 0.95em;
   }
   #joinContainer input[type="text"], #joinContainer button { width: auto; font-size: 16px; }
-  #listeJoueurs { grid-template-columns: repeat(2, 1fr); }
 }
+
 @media (max-width: 480px) {
+  #listeJoueurs { grid-template-columns: 1fr; }
   #index, #round, #ChoixPileFace, #ResPileFace {
     width: 95vw;
     height: auto;
@@ -286,13 +324,25 @@ button:hover {
     font-size: 0.9em;
   }
   #joinContainer input[type="text"], #joinContainer button { width: 100%; font-size: 14px; }
-  #listeJoueurs { grid-template-columns: 1fr; }
 }
-  </style>
+
+</style>
+    
 </head>
 <body>
   <div id="index">
     <h1 id="titre">Jeu de la Pièce</h1>
+
+    <div id="btnCouleur">
+      <button id="themeClair" onclick="themeClair()">
+        <span id="gauche"></span>
+        <span id="droite"></span>
+      </button>
+      <button id="themeSombre" onclick="themeSombre()">
+        <span id="gauche"></span>
+        <span id="droite"></span>
+      </button>
+    </div>
     
     <!-- Conteneur horizontal pour input + bouton -->
     <div id="joinContainer">
@@ -358,6 +408,42 @@ button:hover {
 
         var choix;
         var questionActuelle = "";
+        // ----------- FONCTION BOUTON THEME ---------
+
+        function themeClair() {
+  const root = document.documentElement;
+
+  root.style.setProperty('--couleur1', '#FFD699');       // jaune clair
+  root.style.setProperty('--couleur2', '#FF7F50');       // corail
+  root.style.setProperty('--couleur3', '#FF5722');       // orange foncé
+
+  root.style.setProperty('--couleur-texte', '#3B2F2F');
+  root.style.setProperty('--couleur-accent', '#E67E22');
+  root.style.setProperty('--couleur-border', '#FFA07A');
+  root.style.setProperty('--couleur-focus', '#FF4500');
+
+  root.style.setProperty('--joueur-bg', '#FFE4C4');
+  root.style.setProperty('--coin-front', '#FF8C00');
+  root.style.setProperty('--coin-back', '#D35400');
+
+  root.style.setProperty('--white', '#FFFFFF');
+  root.style.setProperty('--black', '#000000');
+  root.style.setProperty('--couleur-index','#FFFFFF')
+}
+          function themeSombre() {
+            const root = document.documentElement;
+  root.style.setProperty('--couleur1', '#7d5abe'); 
+  root.style.setProperty('--couleur2', '#4f32cf'); 
+  root.style.setProperty('--couleur3', '#1c069b'); 
+  root.style.setProperty('--couleur-texte', '#F0F0F0');
+  root.style.setProperty('--couleur-accent', '#7D5FFF');
+  root.style.setProperty('--couleur-border', '#7D5FFF');
+  root.style.setProperty('--couleur-focus', '#B19CD9');
+  root.style.setProperty('--joueur-bg', 'rgba(15, 15, 35, 0.9)');
+  root.style.setProperty('--coin-front', '#7D5FFF');
+  root.style.setProperty('--coin-back', '#4B0082');
+  root.style.setProperty('--couleur-index','rgba(15, 15, 35, 0.7)');
+} 
 
         // --------- FONCTIONS UTILITAIRES ---------
         function resetRound() {
