@@ -1,0 +1,358 @@
+   /* --- Palette de couleurs dans :root --- */
+   :root {
+    --couleur1: #FFD699;   /* jaune clair */
+    --couleur2: #FF7F50;   /* corail */
+    --couleur3: #FF5722;   /* orange foncé */
+  
+    --couleur-texte: #3B2F2F;
+    --couleur-accent: #E67E22;
+    --couleur-border: #FFA07A;
+    --couleur-focus: #FF4500;
+  
+    --joueur-bg: #FFE4C4;
+    --coin-front: #FF8C00;
+    --coin-back: #D35400;
+  
+    --couleur-index : #FFFFFF;
+    --white: #FFFFFF;
+    --black: #000000;
+  }
+  
+  /* --- Style général --- */
+  body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(
+      315deg,
+      var(--couleur1),
+      var(--couleur2),
+      var(--couleur3),
+      var(--couleur2),
+      var(--couleur1)
+    );
+    background-size: 400% 400%;
+    animation: waveMove 30s linear infinite;
+    color: var(--couleur-texte);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  
+  /* Animation diagonale ↘ */
+  @keyframes waveMove {
+    0%   { background-position: 100% 100%; }
+    100% { background-position: 0% 0%; }
+  }
+  
+  /* Titres */
+  #titre {
+    font-family: 'Fredoka One', cursive;
+    font-size: 4rem;
+    font-weight: bold;
+    text-align: center;
+  
+    background: linear-gradient(
+      315deg,
+      var(--couleur1),
+      var(--couleur2),
+      var(--couleur3),
+      var(--couleur2),
+      var(--couleur1)
+    );
+    background-size: 400% 400%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  
+    animation: waveMove 30s linear infinite;
+  }
+  
+  h1 { margin-bottom: 25px; font-size: 2.5em; }
+  h3 { color: var(--couleur-accent); margin-bottom: 15px; font-size: 1.5em; }
+  
+  /* Conteneurs principaux */
+  #index, #round, #ChoixPileFace, #ResPileFace {
+    background-color: var(--couleur-index);
+    color: var(--couleur-texte);
+    padding: 2%;
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+    width: 75vw;
+    min-height: 75vh;
+    max-width: 1200px;
+    max-height: none;
+    text-align: center;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    box-sizing: border-box;
+    perspective: 800px;
+  }
+  
+  #PhrasePseudo {
+    font-size: 2em;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+    background: linear-gradient(90deg, #FF7F50, #FFD699);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  /* Style de la question */
+  #LaQuestion {
+    font-size: 1.5em;
+    font-weight: 500;
+    color: #555;
+    background: linear-gradient(90deg, #4b0082, #6a5acd);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    padding: 10px 20px;
+    border-radius: 15px;
+  }
+  
+  #index { max-height: 90vh; overflow-y: auto; }
+  
+  /* --- Input + bouton sur la même ligne --- */
+  #joinContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  #joinContainer input[type="text"] {
+    padding: 10px;
+    font-size: 16px;
+    width: 200px;
+    border-radius: 12px;
+    border: 1px solid var(--couleur-border);
+    transition: all 0.2s;
+  }
+  
+  #joinContainer input[type="text"]:focus {
+    border-color: var(--couleur-focus);
+    box-shadow: 0 0 5px rgba(255, 69, 0, 0.5);
+    outline: none;
+  }
+  
+  /* Boutons généraux */
+  button {
+    background: linear-gradient(
+      315deg,
+      var(--couleur1),
+      var(--couleur2),
+      var(--couleur3),
+      var(--couleur2),
+      var(--couleur1)
+    );
+    background-size: 400% 400%;
+    color: var(--white);
+    border: none;
+    border-radius: 12px;
+    padding: 12px 25px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: transform 0.2s, background-color 0.2s;
+    animation: waveMove 30s linear infinite;
+  }
+  
+  button:hover {
+    transform: scale(1.1);
+    background-color: var(--couleur-focus);
+  }
+  
+  /* Pièce animée */
+  #coin-container {
+    perspective: 1200px;
+    width: 160px;
+    height: 160px;
+    margin: auto;
+  }
+  
+  #coin .face img { width: 100px; height: 100px; }
+  
+  #coin {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 3s ease-out;
+  }
+  
+  .face {
+    position: absolute;
+    width: 160px;
+    height: 160px;
+    backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: bold;
+    color: var(--white);
+    border-radius: 50%;
+  }
+  
+  .front { background: var(--coin-front); }
+  .back { background: var(--coin-back); transform: rotateY(180deg); }
+  
+  /* Liste des joueurs */
+  #listeJoueurs {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    justify-items: stretch;
+    align-items: start;
+    margin-top: 10px;
+  }
+  
+  #listeJoueurs div {
+    background-color: var(--joueur-bg);
+    color: var(--couleur-texte);
+    gap : 10px;
+    padding: 20px 25px;
+    border-radius: 12px;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  #listeJoueurs div:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  }
+  
+  #listeJoueurs div button {
+    background-color: var(--coin-front);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s;
+  }
+  
+  #listeJoueurs div button:hover {
+    background-color: var(--couleur-focus);
+    transform: scale(1.1);
+  }
+  
+  /* Boutons thèmes flottants diagonaux */
+  #btnCouleur {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+    z-index: 1000;
+  }
+  
+  #btnCouleur button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border : 2px solid black;
+    cursor: pointer;
+  }
+  
+  #btnSortir {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: none;   /* pas de couleur de fond */
+    border: none;       /* pas de bordure */
+    padding: 0;         /* pas d’espace autour */
+    cursor: pointer;
+    z-index: 1000;
+  }
+  #btnSortir img {
+    width: 50px;
+    height: 50px;
+  }
+  
+  
+  /* Rouge / Orange avec diagonale */
+  #themeClair {
+    background: linear-gradient(
+      315deg,
+      #FFD699,
+      #FF7F50,
+      #FF5722
+    );
+    border: 2px solid black;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    background-size: 200% 200%;
+    animation: waveMove 30s linear infinite; /* animation indépendante */
+  }
+  
+  #themeSombre {
+    background: linear-gradient(
+      315deg,
+      #4b0082,
+      #6a5acd,
+      #00008b
+    );
+    border: 2px solid black;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    background-size: 200% 200%;
+    animation: waveMove 30s linear infinite; /* animation indépendante */
+  }
+  
+  
+  /* Pile / Face */
+  #ChoixPileFace { display: none; }
+  #ChoixPileFace button img { width: 120px; height: 120px; }
+  
+  #commencer { margin-top: 20px; }
+  
+  /* Responsive */
+  @media (max-width: 1024px) {
+    #listeJoueurs { grid-template-columns: repeat(3, 1fr); }
+    #index, #round, #ChoixPileFace, #ResPileFace {
+      width: 85vw;
+      height: auto;
+      padding: 4%;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    #listeJoueurs { grid-template-columns: repeat(2, 1fr); }
+    #index, #round, #ChoixPileFace, #ResPileFace {
+      width: 90vw;
+      height: auto;
+      padding: 5%;
+      font-size: 0.95em;
+    }
+    #joinContainer input[type="text"], #joinContainer button { width: auto; font-size: 16px; }
+  }
+  
+  @media (max-width: 480px) {
+    #listeJoueurs { grid-template-columns: 1fr; }
+    #index, #round, #ChoixPileFace, #ResPileFace {
+      width: 95vw;
+      height: auto;
+      padding: 5%;
+      font-size: 0.9em;
+    }
+    #joinContainer input[type="text"], #joinContainer button { width: 100%; font-size: 14px; }
+  }
+  

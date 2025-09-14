@@ -117,6 +117,18 @@ def envoyerRes(data):
     res = PileFace()
     socketio.emit('ResPileFace', res, to=room)
 
+@socketio.on('resetRoom')
+def reset_room(data):
+    room = data['room']
+    if room in rooms:
+        rooms[room]["joueurs"].clear()
+        rooms[room]["base"].clear()
+        rooms[room]["tirage"].clear()
+        rooms[room]["questions"] = charger_questions("question.txt")
+        print("Room reset :", room)
+        socketio.emit('majListe', [], to=room)  # vide la liste côté clients
+
+
 # ---------------- MAIN ----------------
 if __name__ == '__main__':
     print("Serveur lancé avec rooms isolées")
