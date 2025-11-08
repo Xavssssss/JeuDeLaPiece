@@ -4,26 +4,19 @@
   <meta charset="UTF-8">
   <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">    
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <title>Jeu de la Pièce</title>
 </head>
 <body>
-  <button id="btnSortir" onclick="leaveGame()" style="display: block;">
-     <img src="{{ url_for('static', filename='btnSortir.png') }}" alt ="Sortir"/>
+  <!-- Bouton sortir -->
+  <button id="btnSortir" onclick="leaveGame()">
+    <img src="{{ url_for('static', filename='btnSortir.png') }}" alt="Sortir"/>
   </button>
+
+  <!-- Écran d'accueil -->
   <div id="index">
     <h1 id="titre">Jeu de la Pièce</h1>
-    <div id="btnCouleur">
-      <button id="themeClair" onclick="themeClair()">
-        <span id="gauche"></span>
-        <span id="droite"></span>
-      </button>
-      <button id="themeSombre" onclick="themeSombre()">
-        <span id="gauche"></span>
-        <span id="droite"></span>
-      </button>
-    </div>
-    
-    <!-- Conteneur horizontal pour input + bouton -->
+
     <div id="joinContainer">
       <input type="text" id="nomJoueur" placeholder="Entrez votre nom">
       <button onclick="rejoindreJeu()">Rejoindre le jeu</button>
@@ -31,43 +24,89 @@
 
     <h3>Liste des joueurs :</h3>
     <div id="listeJoueurs"></div>
+
     <div id="commencer">
       <button onclick="commencerJeu()">START !</button>
     </div>
   </div>
 
-  <div id="round" style="display: none;">
+  <!-- Écran de round (iPhone + écrans internes) -->
+  <div id="round" style="display:none;">
+    <div id="iphoneContainer">
+      <div class="iphone">
+        <div class="notch"></div>
+
+        <!-- Écran d'appel -->
+        <div id="callScreen" class="screen">
+          <div class="call-time">12:34</div>
+          <div class="call-text">📱 Appel entrant de</div>
+          <div class="player-name" id="playerNamePhone">...</div>
+
+          <!-- Swipe décrocher -->
+          <div class="swipe-container">
+            <div class="swipe-track">
+              <div class="swipe-thumb" id="btnDecrocherPhone">📞 Glissez pour décrocher</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Écran intermédiaire (plus tard : icônes d'applis) -->
+        <div id="appScreen" class="screen" style="display:none;">
+          <h2>📱 Choisis une application</h2>
+          <div class="apps-grid">
+            <div class="app-icon" onclick="openTwitter()">🐦</div>
+            <div class="app-icon">📸</div>
+            <div class="app-icon">🎮</div>
+            <div class="app-icon">🎵</div>
+          </div>
+        </div>
+
+        <!-- Écran Twitter -->
+        <div id="twitterScreen" class="screen twitter">
+          <div class="logo">🐦 Twitter</div>
+          <div class="question" id="questionPhone">...</div>
+          <button id="btnContinuerJeu" class="continue-btn" onclick="afficherChoixPileFace()">Continuer</button>
+        </div>
+
+        <!-- Écran Pile ou Face -->
+        <div id="pileFaceScreen" class="screen" style="display:none;">
+          <h2>Choisis entre Pile et Face</h2>
+          <div class="options">
+            <button id="btnPile" onclick="envoyerChoixP()">
+              <img src="{{ url_for('static', filename='pile.png') }}" alt="PILE" />
+            </button>
+            <button id="btnFace" onclick="envoyerChoixF()">
+              <img src="{{ url_for('static', filename='face.png') }}" alt="FACE" />
+            </button>
+          </div>
+
+          <div id="coin-container">
+            <div id="coin">
+              <div class="face front"><img src="{{ url_for('static', filename='pile.png') }}" alt="PILE" /></div>
+              <div class="face back"><img src="{{ url_for('static', filename='face.png') }}" alt="FACE" /></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Écran Résultat -->
+        <div id="resultScreen" class="screen">
+          <div id="resultText"></div>
+          <div id="questionResult" style="margin: 20px 0; font-size: 1em; display: none;"></div>
+          <div id="btnApresRes">
+            <button id="btnNewRound" onclick="nouveauRound()">Nouveau Round</button>
+            <button id="AffQuestGagne" onclick="afficheQuestionResult()">Affiche question (si pénlaité)</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
     <div id="PhrasePseudo"></div>
     <div id="LaQuestion"></div>
   </div>
 
-  <div id="ChoixPileFace">
-    <div class="option">
-      <h2>Choisis entre Pile et Face</h2>
-      <button id="btnPile" onclick="envoyerChoixP()">
-        <img src="{{ url_for('static', filename='pile.png') }}" alt="PILE" />
-      </button>
-      <span>Pile</span>
-    </div>
-    <div class="option">
-      <button id="btnFace" onclick="envoyerChoixF()">
-        <img src="{{ url_for('static', filename='face.png') }}" alt="FACE" />
-      </button>
-      <span>Face</span>
-    </div>
-  </div>
-
-  <div id="ResPileFace" style="display:none;">
-    <div id="coin-container">
-      <div id="coin">
-        <div class="face front"><img src="{{ url_for('static', filename='pile.png') }}" alt="PILE" /></div>
-        <div class="face back"><img src="{{ url_for('static', filename='face.png') }}" alt="FACE" /></div>
-      </div>
-    </div>
-    <div id="resultat" style="margin-top:20px; font-size:20px; font-weight:bold;"></div>
-  </div>
+  <!-- SCRIPT JS -->
   <script>
-    // Automatiser la séparation des lettres du titre
     const titre = document.getElementById('titre');
     const text = titre.textContent;
     titre.textContent = '';
@@ -76,276 +115,197 @@
       span.textContent = char;
       titre.appendChild(span);
     });
-  </script>
-    
-    <script>
-        var socket = io({ transports: ['websocket'], upgrade: false });
 
-        // -------- ROOMS --------
-        var room = Math.random().toString(36).substring(2, 8); // id unique auto par client
-        console.log("Room perso:", room);
+    var socket = io({ transports: ['websocket'], upgrade: false });
+    var room = Math.random().toString(36).substring(2, 8);
+    var choix;
+    var questionActuelle = "";
 
-        var choix;
-        var questionActuelle = "";
-        // ----------- FONCTION BOUTON THEME ---------
+    function resetRound() {
+      document.getElementById("round").style.display = 'none';
+      document.getElementById("index").style.display = 'block';
+      document.getElementById("pileFaceScreen").style.display = 'none';
+      document.getElementById("resultScreen").style.display = 'none';
+      document.getElementById("twitterScreen").style.display = 'none';
+      document.getElementById("callScreen").style.display = 'none';
+    }
 
-        function themeClair() {
-  const root = document.documentElement;
+    function rejoindreJeu() {
+      const nomJoueur = document.getElementById("nomJoueur").value.trim();
+      if (nomJoueur) {
+        socket.emit('NouvJoueur', {room: room, pseudo: nomJoueur});
+        document.getElementById("nomJoueur").value = "";
+      } else { alert("Veuillez entrer un pseudo valide"); }
+    }
 
-  root.style.setProperty('--couleur1', '#FFD699');       // jaune clair
-  root.style.setProperty('--couleur2', '#FF7F50');       // corail
-  root.style.setProperty('--couleur3', '#FF5722');       // orange foncé
+    function commencerJeu() {
+      resetRound();
+      document.getElementById("index").style.display = 'none';
+      document.getElementById("round").style.display = 'block';
+      document.getElementById("callScreen").style.display = 'flex';
+      socket.emit('lancerRound', {room: room});
+      socket.emit('chargerQuestion', {room: room});
+    }
 
-  root.style.setProperty('--couleur-texte', '#3B2F2F');
-  root.style.setProperty('--couleur-accent', '#E67E22');
-  root.style.setProperty('--couleur-border', '#FFA07A');
-  root.style.setProperty('--couleur-focus', '#FF4500');
+    function showPhoneCall(playerName) {
+      document.getElementById("playerNamePhone").textContent = playerName;
+      document.getElementById("callScreen").style.display = "flex";
+    }
 
-  root.style.setProperty('--joueur-bg', '#FFE4C4');
-  root.style.setProperty('--coin-front', '#FF8C00');
-  root.style.setProperty('--coin-back', '#D35400');
+    function answerPhoneCall() {
+      document.getElementById("callScreen").style.display = "none";
+      document.getElementById("twitterScreen").style.display = "flex";
+    }
 
-  root.style.setProperty('--white', '#FFFFFF');
-  root.style.setProperty('--black', '#000000');
-  root.style.setProperty('--couleur-index','#FFFFFF')
-}
-          function themeSombre() {
-            const root = document.documentElement;
-  root.style.setProperty('--couleur1', '#7d5abe'); 
-  root.style.setProperty('--couleur2', '#4f32cf'); 
-  root.style.setProperty('--couleur3', '#1c069b'); 
-  root.style.setProperty('--couleur-texte', '#F0F0F0');
-  root.style.setProperty('--couleur-accent', '#7D5FFF');
-  root.style.setProperty('--couleur-border', '#7D5FFF');
-  root.style.setProperty('--couleur-focus', '#B19CD9');
-  root.style.setProperty('--joueur-bg', 'rgba(15, 15, 35, 0.9)');
-  root.style.setProperty('--coin-front', '#7D5FFF');
-  root.style.setProperty('--coin-back', '#4B0082');
-  root.style.setProperty('--couleur-index','rgba(15, 15, 35, 0.7)');
-} 
+    function showTwitterQuestion(question) {
+      document.getElementById("questionPhone").textContent = question;
+    }
 
-        // --------- FONCTIONS UTILITAIRES ---------
-        function resetRound() {
-            document.getElementById("round").style.display = 'none';
-            document.getElementById("ChoixPileFace").style.display = 'none';
-            document.getElementById("ResPileFace").style.display = 'none';
+    function afficherChoixPileFace() {
+      document.getElementById("twitterScreen").style.display = 'none';
+      document.getElementById("pileFaceScreen").style.display = 'flex';
+    }
 
-            const coin = document.getElementById("coin");
-            const affichage = document.getElementById("resultat");
-            coin.style.transition = "none";
-            coin.style.transform = "rotateY(0deg)";
-            affichage.textContent = "";
+    function envoyerChoixP() { 
+      choix = "pile";
+      lancerAnimationPileFace("pile");
+      socket.emit("envoyerResPileFace", {room: room});
+    }
 
-            document.getElementById("LaQuestion").innerHTML = "";
-            document.getElementById("PhrasePseudo").innerHTML = "";
+    function envoyerChoixF() { 
+      choix = "face";
+      lancerAnimationPileFace("face");
+      socket.emit("envoyerResPileFace", {room: room});
+    }
+
+    function lancerAnimationPileFace(resultat) {
+      const coin = document.getElementById("coin");
+      const resultScreen = document.getElementById("resultScreen");
+      const resultText = document.getElementById("resultText");
+      const pileFaceScreen = document.getElementById("pileFaceScreen");
+
+      let tours = 4;
+      let angleFinal = (resultat === "pile") ? 0 : 180;
+      coin.style.transition = "none";
+      coin.style.transform = "rotateY(0deg)";
+      void coin.offsetWidth;
+      coin.style.transition = "transform 3s ease-out";
+      coin.style.transform = `rotateY(${tours * 360 + angleFinal}deg)`;
+
+      setTimeout(() => {
+        pileFaceScreen.style.display = "none";
+        resultScreen.style.display = "flex";
+        const btn = document.getElementById("AffQuestGagne");
+        resultText.textContent = (choix === resultat) ? "🎉 GAGNÉ !" : "❌ PERDU !";
+        resultText.className = (choix === resultat) ? "win" : "lose";
+        const questionResult = document.getElementById("questionResult");
+        if (choix !== resultat) {
+        questionResult.textContent = "💬 Question précédente : " + questionActuelle;
+        questionResult.style.display = "block";
+        btn.style.display = "none";
+        } else {
+          questionResult.style.display = "none";
         }
+      }, 3000);
+    }
 
-        function afficherPieceAvantResultat() {
-        const resDiv = document.getElementById("ResPileFace");
-        const coin = document.getElementById("coin");
-        const affichage = document.getElementById("resultat");
+    function nouveauRound() {
+      document.getElementById("resultScreen").style.display = "none";
+      document.getElementById("callScreen").style.display = "flex";
+      document.getElementById("AffQuestGagne").style.display = "none"
+      socket.emit('lancerRound', {room: room});
+      socket.emit('chargerQuestion', {room: room});
+    }
 
-        // ⬇️ Nettoyage immédiat des éléments du round précédent
-        const oldQ = document.getElementById("affQuest");
-        if (oldQ) oldQ.remove();
-        const oldBtnShow = document.getElementById("btnAfficherQuestion");
-        if (oldBtnShow) oldBtnShow.remove();
-        const oldBtnNew = document.getElementById("btnNewRound");
-        if (oldBtnNew) oldBtnNew.remove();
+    function leaveGame() {
+      socket.emit('resetRoom', { room: room });
+      resetRound();
+      document.getElementById("index").style.display='block';
+    }
 
-        // reset visuel de la pièce + efface le texte de résultat
-        resDiv.style.display = 'block';
-        coin.style.transition = "none";
-        coin.style.transform = "rotateY(0deg)";
-        affichage.textContent = "";
+    // Swipe décrocher
+    (function setupSwipeThumb(){
+      const thumb = document.getElementById("btnDecrocherPhone");
+      const track = document.querySelector(".swipe-track");
+      if (!thumb || !track) return;
+
+      let startX = 0, currentX = 0, isDragging = false;
+      function getMaxX() { return track.offsetWidth - thumb.offsetWidth; }
+
+      function startDrag(e) {
+        isDragging = true;
+        startX = e.touches ? e.touches[0].clientX : e.clientX;
+        currentX = 0;
+        thumb.style.transition = 'none';
+        document.addEventListener('mousemove', moveDrag);
+        document.addEventListener('touchmove', moveDrag, {passive:false});
+        document.addEventListener('mouseup', endDrag);
+        document.addEventListener('touchend', endDrag);
+      }
+
+      function moveDrag(e) {
+        if (!isDragging) return;
+        if (e.cancelable) e.preventDefault();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        currentX = clientX - startX;
+        if (currentX < 0) currentX = 0;
+        const maxX = getMaxX();
+        if (currentX > maxX) currentX = maxX;
+        thumb.style.transform = `translateX(${currentX}px)`;
+      }
+
+      function endDrag() {
+        if (!isDragging) return;
+        isDragging = false;
+        const maxX = getMaxX();
+        if (currentX > maxX * 0.6) {
+          thumb.style.transition = 'transform 0.2s';
+          thumb.style.transform = `translateX(${maxX}px)`;
+          thumb.textContent = "📞 Appel décroché";
+          thumb.style.background = "rgba(50,205,50,0.9)";
+          answerPhoneCall();
+          socket.emit('demandeQuestion', {room: room});
+        } else {
+          thumb.style.transition = 'transform 0.2s';
+          thumb.style.transform = `translateX(0)`;
         }
+        document.removeEventListener('mousemove', moveDrag);
+        document.removeEventListener('touchmove', moveDrag);
+        document.removeEventListener('mouseup', endDrag);
+        document.removeEventListener('touchend', endDrag);
+      }
 
+      thumb.addEventListener('mousedown', startDrag);
+      thumb.addEventListener('touchstart', startDrag, {passive:false});
+    })();
 
-        // --------- FONCTIONS DE JEU ---------
-        function rejoindreJeu() {
-            const nomJoueur = document.getElementById("nomJoueur").value.trim();
-            if (nomJoueur) {
-                socket.emit('NouvJoueur', {room: room, pseudo: nomJoueur});
-                document.getElementById("nomJoueur").value = "";
-            } else {
-                alert("Veuillez entrer un pseudo valide");
-            }
-        }
-        
-        function commencerJeu() {
-            resetRound();
-            document.getElementById("index").style.display = 'none';
-            document.getElementById("round").style.display = 'block';
-            socket.emit('lancerRound', {room: room});
-            socket.emit('chargerQuestion', {room: room});
-        }
-        
-        function demanderQuestion() {
-            socket.emit('demandeQuestion', {room: room});
-            document.getElementById("decrocher").style.display = 'none';
-        }
-        
-        function afficherChoixPileFace() {
-            document.getElementById("round").style.display = 'none';
-            document.getElementById("ChoixPileFace").style.display = 'block';
-        }
-        
-        function envoyerChoixP() {
-            choix = "pile";
-            afficherPieceAvantResultat();
-            socket.emit("envoyerResPileFace", {room: room});
-            document.getElementById("ChoixPileFace").style.display = 'none';
-            document.getElementById("LaQuestion").innerHTML = "";
-        }
-        
-        function envoyerChoixF() {
-            choix = "face";
-            afficherPieceAvantResultat();
-            socket.emit("envoyerResPileFace", {room: room});
-            document.getElementById("ChoixPileFace").style.display = 'none';
-            document.getElementById("LaQuestion").innerHTML = "";
-        }
-        
-        function lancerAnimationPileFace(resultat) {
-            const coin = document.getElementById("coin");
-            const affichage = document.getElementById("resultat");
-            const round = document.getElementById('LaQuestion');
+    function afficheQuestionResult(){
+      const question = document.getElementById("questionResult");
+      const btn = document.getElementById("AffQuestGagne");
+      questionResult.textContent = "💬 Question précédente : " + questionActuelle; 
+      questionResult.style.display = "block";
+      btn.style.display = 'none';
+    }
 
-            let tours = 4;
-            let angleFinal = (resultat === "pile") ? 0 : 180;
-
-            coin.style.transition = "none";
-            coin.style.transform = "rotateY(0deg)";
-            void coin.offsetWidth;
-
-            coin.style.transition = "transform 3s ease-out";
-            coin.style.transform = `rotateY(${tours * 360 + angleFinal}deg)`;
-
-            document.getElementById("ResPileFace").style.display = 'block';
-
-            setTimeout(() => {
-                affichage.textContent = (choix === resultat) ? "🎉 GAGNÉ !" : "❌ PERDU !";
-                affichage.style.color = (choix === resultat) ? "green" : "red";
-
-                if (choix === resultat){
-                    const ancienBtn = document.getElementById("btnAfficherQuestion");
-                    if (ancienBtn) ancienBtn.remove();
-                    let btnAfficherQuestion = document.createElement("button")
-                    btnAfficherQuestion.id = "btnAfficherQuestion";
-                    btnAfficherQuestion.textContent ="Afficher la question si pénalité"
-                    let ancienQuest = document.getElementById("affQuest")
-                    if (ancienQuest) ancienQuest.remove();
-                    let affQuest = document.createElement("span")
-                    affQuest.textContent = questionActuelle
-                    affQuest.id="affQuest"
-                    affQuest.style.display = 'none'
-                    affichage.parentNode.appendChild(affQuest)
-                    btnAfficherQuestion.onclick = () => {
-                        affQuest.style.display ='block'
-                        btnAfficherQuestion.style.display = 'none'
-                    }
-                    affichage.parentNode.appendChild(btnAfficherQuestion)
-                }
-                if (choix !== resultat){
-                    let ancienQuest = document.getElementById("affQuest")
-                    if (ancienQuest) ancienQuest.remove();
-                    let affQuest = document.createElement("span")
-                    affQuest.id="affQuest"
-                    affQuest.textContent = questionActuelle
-                    affichage.parentNode.appendChild(affQuest)
-                }
-                const ancienBtn = document.getElementById("btnNewRound");
-                if (ancienBtn) ancienBtn.remove();
-                let btnNewRound = document.createElement("button");
-                btnNewRound.id = "btnNewRound"
-                btnNewRound.textContent = "Nouveau Round";
-                btnNewRound.onclick = () => {
-                    socket.emit('lancerRound', {room: room});
-                    resetRound();
-                    document.getElementById("round").style.display = 'block';
-                };
-                affichage.parentNode.appendChild(btnNewRound);
-            }, 3000);
-        }
-        
-        function leaveGame() {
-    // 1. Demande au serveur de reset la room
-    socket.emit('resetRoom', { room: room });
-
-    // 2. Reset visuel
-    resetRound();
-    document.getElementById("index").style.display = 'block';
-    document.getElementById("round").style.display = 'none';
-    document.getElementById("ChoixPileFace").style.display = 'none';
-    document.getElementById("ResPileFace").style.display = 'none';
-
-    // 3. Réinitialiser aussi la liste joueurs à l'écran d'accueil
-    document.getElementById("listeJoueurs").innerHTML = "";
-}
-
-
-        // --------- SOCKETS ---------
-        socket.on('majListe', (liste) => {
-    const zone = document.getElementById("listeJoueurs");
-    zone.innerHTML = "";
-    liste.forEach(joueur => {
-        const joueurDiv = document.createElement("div");
-
-        const nom = document.createElement("span");
-        nom.textContent = joueur;
-
-        const bouton = document.createElement("button");
-        bouton.textContent = "❌";
-        bouton.onclick = () => {
-            socket.emit('SupprimerJoueur', {room: room, pseudo: joueur});
-        };
-
+    socket.on('majListe', (liste) => {
+      const zone=document.getElementById("listeJoueurs");
+      zone.innerHTML="";
+      liste.forEach(joueur=>{
+        const joueurDiv=document.createElement("div");
+        const nom=document.createElement("span");
+        nom.textContent=joueur;
+        const bouton=document.createElement("button");
+        bouton.textContent="❌";
+        bouton.onclick=()=>{ socket.emit('SupprimerJoueur',{room:room,pseudo:joueur}); };
         joueurDiv.appendChild(nom);
         joueurDiv.appendChild(bouton);
         zone.appendChild(joueurDiv);
+      });
     });
-});
 
-        
-        socket.on('AfficheNomJoueurR', (data) => {
-            if (data) {
-                const round = document.getElementById('PhrasePseudo');
-                round.innerHTML = "";
-        
-                const phrase = document.createElement("span");
-                phrase.textContent = data + " on t'appelle !";
-        
-                const bouton = document.createElement("button");
-                bouton.id = "decrocher";
-                bouton.textContent = "Décrocher !";
-                bouton.onclick = demanderQuestion;
-        
-                round.appendChild(phrase);
-                round.appendChild(bouton);
-            }
-        });
-        
-        socket.on('AfficherQuestion', (data) => {
-            if (data) {
-                questionActuelle = data
-                const round = document.getElementById('LaQuestion');
-                round.innerHTML = "";
-        
-                const phrase = document.createElement("span");
-                phrase.textContent = data;
-        
-                const bouton = document.createElement("button");
-                bouton.textContent = "Suivant";
-                bouton.onclick = afficherChoixPileFace;
-        
-                round.appendChild(phrase);
-                round.appendChild(bouton);
-            }
-        });
-        
-        socket.on('ResPileFace', (data) => {
-            lancerAnimationPileFace(data);
-        });
-    </script>
+    socket.on('AfficheNomJoueurR',(data)=>{ if(data) showPhoneCall(data); });
+    socket.on('AfficherQuestion',(data)=>{ if(data){ questionActuelle=data; showTwitterQuestion(data); } });
+    socket.on('ResPileFace',(data)=>{ lancerAnimationPileFace(data); });
+  </script>
 </body>
 </html>
