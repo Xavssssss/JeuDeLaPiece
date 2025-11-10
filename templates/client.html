@@ -6,6 +6,25 @@
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <title>Jeu de la Pièce</title>
+  <style>
+    /* ✅ Style du bouton décrocher */
+    .btnDecrocher {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 25px;
+      background: linear-gradient(90deg, #00ff80, #00b33c);
+      color: white;
+      font-size: 1em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btnDecrocher:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(0, 255, 128, 0.5);
+    }
+  </style>
 </head>
 <body>
   <!-- Bouton sortir -->
@@ -30,7 +49,7 @@
     </div>
   </div>
 
-  <!-- Écran de round (iPhone + écrans internes) -->
+  <!-- Écran de round -->
   <div id="round" style="display:none;">
     <div id="iphoneContainer">
       <div class="iphone">
@@ -41,16 +60,10 @@
           <div class="call-time">12:34</div>
           <div class="call-text">📱 Appel entrant de</div>
           <div class="player-name" id="playerNamePhone">...</div>
-
-          <!-- Swipe décrocher -->
-          <div class="swipe-container">
-            <div class="swipe-track">
-              <div class="swipe-thumb" id="btnDecrocherPhone">📞 Glissez pour décrocher</div>
-            </div>
-          </div>
+          <button id="btnDecrocherPhone" class="btnDecrocher" onclick="decrocherAppel()">📞 Décrocher</button>
         </div>
 
-        <!-- Écran intermédiaire (plus tard : icônes d'applis) -->
+        <!-- Écran intermédiaire -->
         <div id="appScreen" class="screen" style="display:none;">
           <h2>📱 Choisis une application</h2>
           <div class="apps-grid">
@@ -94,15 +107,12 @@
           <div id="questionResult" style="margin: 20px 0; font-size: 1em; display: none;"></div>
           <div id="btnApresRes">
             <button id="btnNewRound" onclick="nouveauRound()">Nouveau Round</button>
-            <button id="AffQuestGagne" onclick="afficheQuestionResult()">Affiche question (si pénlaité)</button>
+            <button id="AffQuestGagne" onclick="afficheQuestionResult()">Affiche question (si pénalité)</button>
           </div>
         </div>
 
       </div>
     </div>
-
-    <div id="PhrasePseudo"></div>
-    <div id="LaQuestion"></div>
   </div>
 
   <!-- SCRIPT JS -->
@@ -150,6 +160,19 @@
     function showPhoneCall(playerName) {
       document.getElementById("playerNamePhone").textContent = playerName;
       document.getElementById("callScreen").style.display = "flex";
+      const btn = document.getElementById("btnDecrocherPhone");
+      btn.disabled = false;
+      btn.textContent = "📞 Décrocher";
+      btn.style.background = "linear-gradient(90deg, #00ff80, #00b33c)";
+    }
+
+    function decrocherAppel() {
+      const btn = document.getElementById("btnDecrocherPhone");
+      btn.textContent = "📞 Appel décroché ✅";
+      btn.style.background = "linear-gradient(90deg, #00cc66, #008f3d)";
+      btn.disabled = true;
+      answerPhoneCall();
+      socket.emit('demandeQuestion', {room: room});
     }
 
     function answerPhoneCall() {
@@ -196,23 +219,31 @@
         pileFaceScreen.style.display = "none";
         resultScreen.style.display = "flex";
         const btn = document.getElementById("AffQuestGagne");
+        const questionResult = document.getElementById("questionResult");
+
         resultText.textContent = (choix === resultat) ? "🎉 GAGNÉ !" : "❌ PERDU !";
         resultText.className = (choix === resultat) ? "win" : "lose";
-        const questionResult = document.getElementById("questionResult");
+
         if (choix !== resultat) {
-        questionResult.textContent = "💬 Question précédente : " + questionActuelle;
-        questionResult.style.display = "block";
-        btn.style.display = "none";
+          questionResult.textContent = "💬 Question précédente : " + questionActuelle;
+          questionResult.style.display = "block";
+          btn.style.display = "none";
         } else {
           questionResult.style.display = "none";
+          btn.style.display = "inline-block";
         }
       }, 3000);
     }
 
     function nouveauRound() {
+      const questionResult = document.getElementById("questionResult");
+      const btn = document.getElementById("AffQuestGagne");
+      questionResult.style.display = "none";
+      btn.style.display = "inline-block";
+
       document.getElementById("resultScreen").style.display = "none";
       document.getElementById("callScreen").style.display = "flex";
-      document.getElementById("AffQuestGagne").style.display = "none"
+
       socket.emit('lancerRound', {room: room});
       socket.emit('chargerQuestion', {room: room});
     }
@@ -223,67 +254,11 @@
       document.getElementById("index").style.display='block';
     }
 
-    // Swipe décrocher
-    (function setupSwipeThumb(){
-      const thumb = document.getElementById("btnDecrocherPhone");
-      const track = document.querySelector(".swipe-track");
-      if (!thumb || !track) return;
-
-      let startX = 0, currentX = 0, isDragging = false;
-      function getMaxX() { return track.offsetWidth - thumb.offsetWidth; }
-
-      function startDrag(e) {
-        isDragging = true;
-        startX = e.touches ? e.touches[0].clientX : e.clientX;
-        currentX = 0;
-        thumb.style.transition = 'none';
-        document.addEventListener('mousemove', moveDrag);
-        document.addEventListener('touchmove', moveDrag, {passive:false});
-        document.addEventListener('mouseup', endDrag);
-        document.addEventListener('touchend', endDrag);
-      }
-
-      function moveDrag(e) {
-        if (!isDragging) return;
-        if (e.cancelable) e.preventDefault();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        currentX = clientX - startX;
-        if (currentX < 0) currentX = 0;
-        const maxX = getMaxX();
-        if (currentX > maxX) currentX = maxX;
-        thumb.style.transform = `translateX(${currentX}px)`;
-      }
-
-      function endDrag() {
-        if (!isDragging) return;
-        isDragging = false;
-        const maxX = getMaxX();
-        if (currentX > maxX * 0.6) {
-          thumb.style.transition = 'transform 0.2s';
-          thumb.style.transform = `translateX(${maxX}px)`;
-          thumb.textContent = "📞 Appel décroché";
-          thumb.style.background = "rgba(50,205,50,0.9)";
-          answerPhoneCall();
-          socket.emit('demandeQuestion', {room: room});
-        } else {
-          thumb.style.transition = 'transform 0.2s';
-          thumb.style.transform = `translateX(0)`;
-        }
-        document.removeEventListener('mousemove', moveDrag);
-        document.removeEventListener('touchmove', moveDrag);
-        document.removeEventListener('mouseup', endDrag);
-        document.removeEventListener('touchend', endDrag);
-      }
-
-      thumb.addEventListener('mousedown', startDrag);
-      thumb.addEventListener('touchstart', startDrag, {passive:false});
-    })();
-
     function afficheQuestionResult(){
       const question = document.getElementById("questionResult");
       const btn = document.getElementById("AffQuestGagne");
-      questionResult.textContent = "💬 Question précédente : " + questionActuelle; 
-      questionResult.style.display = "block";
+      question.textContent = "💬 Question précédente : " + questionActuelle; 
+      question.style.display = "block";
       btn.style.display = 'none';
     }
 

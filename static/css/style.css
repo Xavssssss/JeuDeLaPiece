@@ -138,35 +138,19 @@ button:hover {
   margin-bottom: 40px;
 }
 
-/* --- SWIPE POUR DÉCROCHER --- */
-.swipe-container {
-  width: 80%;
-  height: 50px;
-  position: relative;
+/* --- BOUTON DÉCROCHER (nouvelle version) --- */
+#btnDecrocherPhone {
+  padding: 12px 25px;
+  border-radius: 25px;
+  background: #00ff7f;
+  border: none;
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
 }
-
-.swipe-track {
-  width: 100%;
-  height: 50px;
-  border-radius: 30px;
-  background: rgba(255, 255, 255, 0.1);
-  position: relative;
-  overflow: hidden;
-}
-
-.swipe-thumb {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 160px;
-  height: 50px;
-  border-radius: 30px;
-  background: rgba(255, 255, 255, 0.3);
-  line-height: 50px;
-  font-size: 0.9em;
-  cursor: grab;
-  user-select: none;
-  transition: transform 0.2s;
+#btnDecrocherPhone:hover {
+  background: #00cc66;
 }
 
 /* --- TWITTER SCREEN --- */
@@ -240,23 +224,29 @@ button:hover {
 #pileFaceScreen img {
   width: 80px;
   height: 80px;
+  object-fit: contain;
+  background: transparent;
 }
 
-/* --- ANIMATION PIÈCE --- */
+/* --- ANIMATION PIÈCE (option bonus améliorée) --- */
 #coin-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  perspective: 1000px;
+  perspective: 800px;
   margin-top: 40px;
+  background: transparent;
 }
 
 #coin {
-  width: 150px;
-  height: 150px;
+  width: 120px;
+  height: 120px;
   position: relative;
   transform-style: preserve-3d;
   transform: rotateY(0deg);
+  transition: transform 3s ease-out;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.15), rgba(0,0,0,0.5));
 }
 
 .face {
@@ -269,6 +259,9 @@ button:hover {
 .front img, .back img {
   width: 100%;
   height: 100%;
+  object-fit: contain;
+  background: transparent;
+  border-radius: 50%;
 }
 
 .back {
