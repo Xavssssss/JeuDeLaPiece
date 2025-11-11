@@ -47,7 +47,7 @@ def tirage(room):
 
 @app.route('/')
 def index():
-    return render_template('client.html')
+    return render_template('index.html')
 
 # ---------------- SOCKET EVENTS ----------------
 
