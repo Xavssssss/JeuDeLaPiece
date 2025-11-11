@@ -49,6 +49,9 @@ def tirage(room):
 def index():
     return render_template('index.html')
 
+def client():
+    return render_template('client.html')
+
 # ---------------- SOCKET EVENTS ----------------
 
 @socketio.on('NouvJoueur')
