@@ -20,23 +20,23 @@ def PileFace():
 
 def charger_questions(fichier):
     with open(fichier, "r", encoding="utf-8") as f:
-        return [ligne.strip() for ligne in f]
+        return [ligne.strip() for ligne in f if ligne.strip()]
 
 def tirer_question(liste_questions):
     if not liste_questions:
-        return None
+        return "PLUS DE QUESTIONS DISPONIBLES"
     question = random.choice(liste_questions)
     liste_questions.remove(question)
     return question
 
 def tirage(room):
-    """Tire un joueur en pondérant : les autres gagnent +1 chance à chaque tirage"""
     if not rooms[room]["tirage"]:
-        return None
+        # si tirage vide → recharger la base pour continuer les rounds
+        rooms[room]["tirage"] = rooms[room]["base"][:]
 
     nomSortie = random.choice(rooms[room]["tirage"])
 
-    # Ajouter +1 chance à tous les autres joueurs
+    # Ajouter +1 chance aux autres joueurs
     for joueur in rooms[room]["base"]:
         if joueur != nomSortie:
             rooms[room]["tirage"].append(joueur)
@@ -48,6 +48,7 @@ def tirage(room):
 @app.route('/')
 def index():
     return render_template('index.html')
+
 @app.route('/client')
 def client():
     return render_template('client.html')
@@ -56,7 +57,6 @@ def client():
 
 @socketio.on('NouvJoueur')
 def ajoutJoueur(data):
-    """ data = {room: 'id', pseudo: 'Alice'} """
     room = data['room']
     pseudo = data['pseudo']
 
@@ -64,8 +64,8 @@ def ajoutJoueur(data):
         rooms[room] = {
             "joueurs": [],
             "questions": charger_questions("question.txt"),
-            "base": [],      # liste fixe des pseudos
-            "tirage": []     # liste dynamique qui évolue
+            "base": [],
+            "tirage": []
         }
     
     if pseudo not in rooms[room]["joueurs"]:
@@ -84,26 +84,17 @@ def supprimerJoueur(data):
         print(pseudo, "supprimé de", room)
     socketio.emit('majListe', rooms[room]["joueurs"], to=room)
 
-@socketio.on('chargerQuestion')
-def charger(data):
-    room = data['room']
-    if room in rooms:
-        rooms[room]["questions"] = charger_questions('question.txt')
-        print("Questions chargées pour", room)
-
 @socketio.on('lancerRound')
 def lancerRound(data):
     room = data['room']
 
     if room in rooms and rooms[room]["joueurs"]:
-        # Initialisation des listes au premier round
         if not rooms[room]["base"]:
             rooms[room]["base"] = rooms[room]["joueurs"][:]
             rooms[room]["tirage"] = rooms[room]["joueurs"][:]
 
         joueurEnCours = tirage(room)
         print("Round lancé dans", room, "->", joueurEnCours)
-        print("Liste de tirage actuelle :", rooms[room]["tirage"])
         socketio.emit('AfficheNomJoueurR', joueurEnCours, to=room)
 
 @socketio.on('demandeQuestion')
@@ -129,8 +120,7 @@ def reset_room(data):
         rooms[room]["tirage"].clear()
         rooms[room]["questions"] = charger_questions("question.txt")
         print("Room reset :", room)
-        socketio.emit('majListe', [], to=room)  # vide la liste côté clients
-
+        socketio.emit('majListe', [], to=room)
 
 # ---------------- MAIN ----------------
 if __name__ == '__main__':

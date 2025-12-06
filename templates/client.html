@@ -6,8 +6,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <title>Jeu de la Pièce</title>
+
   <style>
-    /* ✅ Style du bouton décrocher */
     .btnDecrocher {
       padding: 12px 25px;
       border: none;
@@ -19,7 +19,6 @@
       cursor: pointer;
       transition: transform 0.2s, box-shadow 0.2s;
     }
-
     .btnDecrocher:hover {
       transform: scale(1.05);
       box-shadow: 0 0 15px rgba(0, 255, 128, 0.5);
@@ -27,6 +26,7 @@
   </style>
 </head>
 <body>
+
   <!-- Bouton sortir -->
   <button id="btnSortir" onclick="leaveGame()">
     <img src="{{ url_for('static', filename='btnSortir.png') }}" alt="Sortir"/>
@@ -115,7 +115,6 @@
     </div>
   </div>
 
-  <!-- SCRIPT JS -->
   <script>
     const titre = document.getElementById('titre');
     const text = titre.textContent;
@@ -154,7 +153,6 @@
       document.getElementById("round").style.display = 'block';
       document.getElementById("callScreen").style.display = 'flex';
       socket.emit('lancerRound', {room: room});
-      socket.emit('chargerQuestion', {room: room});
     }
 
     function showPhoneCall(playerName) {
@@ -245,7 +243,6 @@
       document.getElementById("callScreen").style.display = "flex";
 
       socket.emit('lancerRound', {room: room});
-      socket.emit('chargerQuestion', {room: room});
     }
 
     function leaveGame() {
@@ -282,5 +279,6 @@
     socket.on('AfficherQuestion',(data)=>{ if(data){ questionActuelle=data; showTwitterQuestion(data); } });
     socket.on('ResPileFace',(data)=>{ lancerAnimationPileFace(data); });
   </script>
+
 </body>
 </html>
