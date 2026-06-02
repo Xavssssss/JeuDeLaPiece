@@ -7,16 +7,19 @@
   <title>Casino</title>
 
   <style>
-    body {
+    html, body {
   margin: 0;
   padding: 0;
+  height: 100%;
   font-family: 'Fredoka One', cursive;
-  background: radial-gradient(circle at top, #111, #000);
+
+  background: radial-gradient(circle at top, #111, #000) !important;
   color: white;
   text-align: center;
   overflow: hidden;
 }
 
+/* ===== TITRE ===== */
 h1 {
   font-size: 70px;
   margin-top: 40px;
@@ -25,49 +28,73 @@ h1 {
   letter-spacing: 3px;
 }
 
+/* ===== CENTRAGE TOTAL ===== */
 #index {
-  margin-top: 40px;
-  position: relative;
-  z-index: 10;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  text-align: center;
 }
 
+/* ===== RESULTAT ===== */
 #resultat {
-  margin: 30px auto;
-  padding: 25px;
-  width: 320px;
-  border-radius: 15px;
+  margin: 20px auto;
+  padding: 30px;
+  width: 90vw;
+  max-width: 1200px;
+
+  border-radius: 20px;
   background: rgba(255, 0, 0, 0.05);
   border: 2px solid red;
-  box-shadow: 0 0 25px rgba(255, 0, 0, 0.4);
+  box-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+
+  font-size: 28px;
+}
+
+/* ===== ROULEAUX ===== */
+#rouleaux {
+  margin-top: 20px;
+  font-size: 80px;
+  letter-spacing: 20px;
+  padding: 30px;
+
+  border-radius: 15px;
+
+  background: #000 !important;
+  color: #fff !important;
+
+  border: 2px solid #ff0000;
+  box-shadow: inset 0 0 25px red;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+/* ===== MESSAGE ===== */
+#message {
+  margin-top: 15px;
   font-size: 22px;
 }
 
-#rouleaux {
-  margin-top: 15px;
-  font-size: 35px;
-  letter-spacing: 5px;
-  padding: 15px;
-  border-radius: 10px;
-  background: black;
-  border: 2px solid white;
-  box-shadow: inset 0 0 15px red;
-}
-
-#message {
-  margin-top: 15px;
-  font-size: 20px;
-}
-
+/* ===== BOUTON ===== */
 button {
   margin-top: 30px;
   padding: 15px 45px;
   font-size: 22px;
+
   border: none;
   border-radius: 12px;
   cursor: pointer;
+
   background: linear-gradient(45deg, red, black);
   color: white;
   font-weight: bold;
+
   box-shadow: 0 0 15px red;
   transition: 0.2s;
 }
@@ -81,8 +108,7 @@ button:active {
   transform: scale(0.95);
 }
 
-/* ===== Bouton Sortir ===== */
-
+/* ===== BOUTON SORTIR ===== */
 #btnSortir {
   position: fixed;
   top: 20px;
@@ -93,13 +119,11 @@ button:active {
   border: none;
   padding: 0;
   margin: 0;
-
   box-shadow: none;
 }
 
 #btnSortir:hover {
   transform: scale(1.1);
-  box-shadow: none;
 }
 
 #btnSortir:active {
@@ -107,13 +131,12 @@ button:active {
 }
 
 #btnSortir img {
-  width: 80px; /* change la taille ici */
+  width: 80px;
   height: auto;
   display: block;
 }
 
-/* ========================= */
-
+/* ===== ANIMATION ===== */
 .rolling {
   animation: shake 0.1s infinite;
 }
@@ -124,6 +147,7 @@ button:active {
   100% { transform: translateY(3px); }
 }
 
+/* ===== RESULTAT GAIN ===== */
 .win {
   color: #00ff88;
   text-shadow: 0 0 10px #00ff88;
@@ -134,8 +158,7 @@ button:active {
   text-shadow: 0 0 10px red;
 }
 
-/* 🌧️ fond emojis */
-
+/* ===== EMOJIS BACKGROUND ===== */
 #emoji-bg {
   position: fixed;
   top: 0;
@@ -160,10 +183,33 @@ button:active {
     transform: translateY(0);
     opacity: 1;
   }
-
   100% {
     transform: translateY(110vh);
     opacity: 0;
+  }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+
+  h1 {
+    font-size: 45px;
+  }
+
+  #rouleaux {
+    font-size: 45px;
+    letter-spacing: 10px;
+    padding: 20px;
+  }
+
+  #resultat {
+    width: 95vw;
+    font-size: 20px;
+  }
+
+  button {
+    font-size: 18px;
+    padding: 12px 30px;
   }
 }
   </style>
@@ -172,11 +218,9 @@ button:active {
 <body>
 
 <div id="emoji-bg"></div>
-<form action="{{ url_for('index') }}" method="get">
-  <button id="btnSortir" type="submit">
-      <img src="{{ url_for('static', filename='btnSortir.png') }}" alt="Sortir">
-  </button>
-</form>
+<button id="btnSortir" type="submit">
+  <img src="{{ url_for('static', filename='btnSortir.png') }}" alt="Sortir">
+</button>
 <div id="index">
   <h1>Casino</h1>
 
@@ -236,7 +280,7 @@ button:active {
       message.textContent = "💀 Perdu";
       message.className = "lose";
     } else {
-      message.textContent = data.message + " + " + data.gain;
+      message.textContent = data.message + " x " + data.gain;
       message.className = "win";
     }
   });
