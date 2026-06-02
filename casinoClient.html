@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <title>Casino</title>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Fredoka One', cursive;
+      background: radial-gradient(circle at top, #111, #000);
+      color: white;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    h1 {
+      font-size: 70px;
+      margin-top: 40px;
+      color: white;
+      text-shadow: 0 0 10px red, 0 0 25px red;
+      letter-spacing: 3px;
+    }
+
+    #index {
+      margin-top: 40px;
+      position: relative;
+      z-index: 10;
+    }
+
+    #resultat {
+      margin: 30px auto;
+      padding: 25px;
+      width: 320px;
+      border-radius: 15px;
+      background: rgba(255, 0, 0, 0.05);
+      border: 2px solid red;
+      box-shadow: 0 0 25px rgba(255, 0, 0, 0.4);
+      font-size: 22px;
+    }
+
+    #rouleaux {
+      margin-top: 15px;
+      font-size: 35px;
+      letter-spacing: 5px;
+      padding: 15px;
+      border-radius: 10px;
+      background: black;
+      border: 2px solid white;
+      box-shadow: inset 0 0 15px red;
+    }
+
+    #message {
+      margin-top: 15px;
+      font-size: 20px;
+    }
+
+    button {
+      margin-top: 30px;
+      padding: 15px 45px;
+      font-size: 22px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      background: linear-gradient(45deg, red, black);
+      color: white;
+      font-weight: bold;
+      box-shadow: 0 0 15px red;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 30px red;
+    }
+
+    button:active {
+      transform: scale(0.95);
+    }
+
+    .rolling {
+      animation: shake 0.1s infinite;
+    }
+
+    @keyframes shake {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+      100% { transform: translateY(3px); }
+    }
+
+    .win {
+      color: #00ff88;
+      text-shadow: 0 0 10px #00ff88;
+    }
+
+    .lose {
+      color: red;
+      text-shadow: 0 0 10px red;
+    }
+
+    /* 🌧️ fond emojis */
+    #emoji-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .emoji {
+      position: absolute;
+      top: -50px;
+      font-size: 24px;
+      animation: fall linear forwards;
+      opacity: 0.8;
+    }
+
+    @keyframes fall {
+      0% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(110vh);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div id="emoji-bg"></div>
+
+<div id="index">
+  <h1>Casino</h1>
+
+  <div id="resultat">
+    🎰 Résultat :
+    <div id="rouleaux">Clique sur "Lancer !"</div>
+    <div id="message"></div>
+  </div>
+
+  <button onclick="lancerRoulette()">Lancer !</button>
+</div>
+
+<script>
+  var socket = io({ transports: ['websocket'], upgrade: false });
+
+  /* 🎰 Lancer roulette avec animation */
+  function lancerRoulette() {
+    const rouleaux = document.getElementById("rouleaux");
+    const message = document.getElementById("message");
+
+    message.textContent = "";
+    rouleaux.classList.add("rolling");
+
+    let i = 0;
+
+    const emojis = ["💀", "🎰", "💎", "🍒", "⭐", "🔔"];
+
+    const interval = setInterval(() => {
+      rouleaux.textContent =
+        emojis[Math.floor(Math.random() * emojis.length)] + " | " +
+        emojis[Math.floor(Math.random() * emojis.length)] + " | " +
+        emojis[Math.floor(Math.random() * emojis.length)];
+
+      i++;
+
+      if (i > 15) {
+        clearInterval(interval);
+        rouleaux.classList.remove("rolling");
+
+        socket.emit("lancerRoulette", { message: "go" });
+      }
+    }, 80);
+  }
+
+  /* 🎰 Résultat serveur */
+  socket.on("symbole", (data) => {
+    const { s1, s2, s3 } = data;
+
+    document.getElementById("rouleaux").textContent =
+      `${s1} | ${s2} | ${s3}`;
+  });
+
+  socket.on("Resultat", (data) => {
+    const message = document.getElementById("message");
+
+    if (data.gain == 0) {
+      message.textContent = "💀 Perdu";
+      message.className = "lose";
+    } else {
+      message.textContent = data.message + " + " + data.gain;
+      message.className = "win";
+    }
+  });
+
+  /* 🌧️ pluie d'emojis */
+  const emojisBG = ["💀", "🎰", "💎", "🍒", "⭐", "🔔"];
+
+  function createEmoji() {
+    const emoji = document.createElement("div");
+    emoji.classList.add("emoji");
+
+    emoji.textContent = emojisBG[Math.floor(Math.random() * emojisBG.length)];
+
+    emoji.style.left = Math.random() * 100 + "vw";
+
+    const duration = Math.random() * 3 + 3;
+    emoji.style.animationDuration = duration + "s";
+
+    document.getElementById("emoji-bg").appendChild(emoji);
+
+    setTimeout(() => {
+      emoji.remove();
+    }, duration * 1000);
+  }
+
+  setInterval(createEmoji, 200);
+</script>
+
+</body>
+</html>

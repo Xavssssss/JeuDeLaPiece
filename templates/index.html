@@ -4,19 +4,72 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Index</title>
-</head>
-<body>
+
     <style>
-        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: radial-gradient(circle at top, #2b0000, #000000);
+            color: white;
+            text-align: center;
+        }
+
+        #titre h1 {
+            font-size: 60px;
+            margin-top: 50px;
+            color: orange;
+            text-shadow: 0 0 10px red, 0 0 25px orange, 0 0 40px red;
+            letter-spacing: 3px;
+        }
+
+        #JeuxContaineur {
+            margin-top: 80px;
+        }
+
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 15px 40px;
+            font-size: 20px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+
+            background: linear-gradient(45deg, #ff0000, #ff7b00);
+            color: white;
+            font-weight: bold;
+
+            box-shadow: 0 0 15px red;
+            transition: 0.3s ease;
+        }
+
+        button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 25px orange, 0 0 40px red;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
     </style>
+</head>
+
+<body>
+
     <div id="titre">
-        <H1>Fuegooos</H1>
+        <h1>Fuegooos 🔥</h1>
     </div>
+
     <div id="JeuxContaineur">
         <form action="{{ url_for('client') }}" method="get">
             <button type="submit">Qui de nous ?</button>
-        <button onclcik="location.href='templates/autorote.html'">El autoroute</button>
+        </form>
+
+        <form action="{{ url_for('clientCasino') }}" method="get">
+            <button type="submit">Casa</button>
+        </form>
     </div>
-    
+
 </body>
 </html>
