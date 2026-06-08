@@ -13,7 +13,10 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = '6joqhm3h'
 socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*")
 
-# ---------------- GLOBAL STATE ----------------
+# =========================================================
+# ===================== GLOBAL STATE ======================
+# =========================================================
+
 rooms = {}
 
 # =========================================================
@@ -75,7 +78,7 @@ def noArg():
 
 
 # =========================================================
-# ====================== SOCKET EVENTS ====================
+# ====================== NORMAL MODE ======================
 # =========================================================
 
 @socketio.on('NouvJoueur')
@@ -200,7 +203,7 @@ def lancerRoulette(data):
 
 
 # =========================================================
-# ===================== NO ARG VERSION =====================
+# ===================== NO ARG MODE =======================
 # =========================================================
 
 def charger_questions_noarg(fichier):
@@ -239,7 +242,7 @@ def ajoutJoueur_noarg(data):
     if room not in rooms:
         rooms[room] = {
             "joueurs": [],
-            "questions": charger_questions_noarg("questionNoArg.txt"),
+            "questionsNoArg": charger_questions_noarg("questionNoArg.txt"),
             "base": [],
             "tirage": []
         }
@@ -298,7 +301,7 @@ def reset_room_noarg(data):
         rooms[room]["joueurs"].clear()
         rooms[room]["base"].clear()
         rooms[room]["tirage"].clear()
-        rooms[room]["questions"] = charger_questions_noarg("questionNoArg.txt")
+        rooms[room]["questionsNoArg"] = charger_questions_noarg("questionNoArg.txt")
 
     socketio.emit('majListeNoArg', [], to=room)
 
