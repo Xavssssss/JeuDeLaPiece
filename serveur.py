@@ -20,6 +20,13 @@ socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*")
 rooms = {}
 
 # =========================================================
+# ===================== ROOM SYSTEM =======================
+# =========================================================
+
+def get_room(mode, room):
+    return f"{mode}:{room}"
+
+# =========================================================
 # ===================== COMMON UTILS ======================
 # =========================================================
 
@@ -83,7 +90,7 @@ def noArg():
 
 @socketio.on('NouvJoueur')
 def ajoutJoueur(data):
-    room = data['room']
+    room = get_room("normal", data['room'])
     pseudo = data['pseudo']
 
     if room not in rooms:
@@ -103,7 +110,7 @@ def ajoutJoueur(data):
 
 @socketio.on('SupprimerJoueur')
 def supprimerJoueur(data):
-    room = data['room']
+    room = get_room("normal", data['room'])
     pseudo = data['pseudo']
 
     if room in rooms and pseudo in rooms[room]["joueurs"]:
@@ -114,7 +121,7 @@ def supprimerJoueur(data):
 
 @socketio.on('lancerRound')
 def lancerRound(data):
-    room = data['room']
+    room = get_room("normal", data['room'])
 
     if room in rooms and rooms[room]["joueurs"]:
         if not rooms[room]["base"]:
@@ -127,7 +134,7 @@ def lancerRound(data):
 
 @socketio.on('demandeQuestion')
 def demanderQuestion(data):
-    room = data['room']
+    room = get_room("normal", data['room'])
 
     if room in rooms:
         q = tirer_question(rooms[room]["questions"])
@@ -136,13 +143,13 @@ def demanderQuestion(data):
 
 @socketio.on("envoyerResPileFace")
 def envoyerRes(data):
-    room = data['room']
+    room = get_room("normal", data['room'])
     socketio.emit('ResPileFace', PileFace(), to=room)
 
 
 @socketio.on('resetRoom')
 def reset_room(data):
-    room = data['room']
+    room = get_room("normal", data['room'])
 
     if room in rooms:
         rooms[room]["joueurs"].clear()
@@ -236,7 +243,7 @@ def tirage_noarg(room):
 
 @socketio.on('NouvJoueurNoArg')
 def ajoutJoueur_noarg(data):
-    room = data['room']+ "_noarg"
+    room = get_room("noarg", data['room'])
     pseudo = data['pseudo']
 
     if room not in rooms:
@@ -256,7 +263,7 @@ def ajoutJoueur_noarg(data):
 
 @socketio.on('SupprimerJoueurNoArg')
 def supprimerJoueur_noarg(data):
-    room = data['room']+ "_noarg"
+    room = get_room("noarg", data['room'])
     pseudo = data['pseudo']
 
     if room in rooms and pseudo in rooms[room]["joueurs"]:
@@ -267,7 +274,7 @@ def supprimerJoueur_noarg(data):
 
 @socketio.on('lancerRoundNoArg')
 def lancerRound_noarg(data):
-    room = data['room']+ "_noarg"
+    room = get_room("noarg", data['room'])
 
     if room in rooms and rooms[room]["joueurs"]:
         if not rooms[room]["base"]:
@@ -280,7 +287,7 @@ def lancerRound_noarg(data):
 
 @socketio.on('demandeQuestionNoArg')
 def demanderQuestion_noarg(data):
-    room = data['room']+ "_noarg"
+    room = get_room("noarg", data['room'])
 
     if room in rooms:
         q = tirer_question_noarg(rooms[room]["questionsNoArg"])
@@ -289,13 +296,13 @@ def demanderQuestion_noarg(data):
 
 @socketio.on("envoyerResPileFaceNoArg")
 def envoyerRes_noarg(data):
-    room = data['room']+ "_noarg"
+    room = get_room("noarg", data['room'])
     socketio.emit('ResPileFaceNoArg', PileFace(), to=room)
 
 
 @socketio.on('resetRoomNoArg')
 def reset_room_noarg(data):
-    room = data['room']+ "_noarg"
+    room = get_room("noarg", data['room'])
 
     if room in rooms:
         rooms[room]["joueurs"].clear()
@@ -311,5 +318,5 @@ def reset_room_noarg(data):
 # =========================================================
 
 if __name__ == '__main__':
-    print("Serveur lancé avec rooms isolées")
+    print("Serveur lancé avec rooms isolées (normal / noarg / casino)")
     socketio.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
