@@ -280,7 +280,7 @@ def demanderQuestion_noarg(data):
     room = data['room']
 
     if room in rooms:
-        q = tirer_question_noarg(rooms[room]["questions"])
+        q = tirer_question_noarg(rooms[room]["questionsNoArg"])
         socketio.emit('AfficherQuestionNoArg', q, to=room)
 
 
