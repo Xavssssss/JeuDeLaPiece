@@ -400,7 +400,7 @@
     resetRound();
   }
 
-  socket.on('majListe', (liste) => {
+  socket.on('majListeNoArg', (liste) => {
     const zone = document.getElementById("listeJoueurs");
     zone.innerHTML = "";
 
@@ -426,11 +426,11 @@
     });
   });
 
-  socket.on('AfficheNomJoueurR', (data) => {
+  socket.on('AfficheNomJoueurRNoArg', (data) => {
     if (data) showPhoneCall(data);
   });
 
-  socket.on('AfficherQuestion', (data) => {
+  socket.on('AfficherQuestionNoArg', (data) => {
     if (data) showTwitterQuestion(data);
   });
 
