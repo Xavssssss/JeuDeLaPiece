@@ -359,7 +359,7 @@
   function rejoindreJeu() {
     const nomJoueur = document.getElementById("nomJoueur").value.trim();
     if (nomJoueur) {
-      socket.emit('NouvJoueur', { room: room, pseudo: nomJoueur });
+      socket.emit('NouvJoueurNoArg', { room: room, pseudo: nomJoueur });
       document.getElementById("nomJoueur").value = "";
     }
   }
@@ -370,7 +370,7 @@
     document.getElementById("round").style.display = 'block';
     document.getElementById("callScreen").style.display = 'block';
 
-    socket.emit('lancerRound', { room: room });
+    socket.emit('lancerRoundNoArg', { room: room });
   }
 
   function showPhoneCall(playerName) {
@@ -381,7 +381,7 @@
     document.getElementById("callScreen").style.display = "none";
     document.getElementById("twitterScreen").style.display = "block";
 
-    socket.emit('demandeQuestion', { room: room });
+    socket.emit('demandeQuestionNoArg', { room: room });
   }
 
   function showTwitterQuestion(question) {
@@ -392,11 +392,11 @@
     document.getElementById("twitterScreen").style.display = "none";
     document.getElementById("callScreen").style.display = "block";
 
-    socket.emit('lancerRound', { room: room });
+    socket.emit('lancerRoundNoArg', { room: room });
   }
 
   function leaveGame() {
-    socket.emit('resetRoom', { room: room });
+    socket.emit('resetRoomNoArg', { room: room });
     resetRound();
   }
 

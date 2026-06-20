@@ -288,13 +288,6 @@ def demanderQuestion_noarg(data):
         q = tirer_question_noarg(rooms[room]["questions"])
         socketio.emit('AfficherQuestionNoArg', q, to=room)
 
-
-@socketio.on("envoyerResPileFaceNoArg")
-def envoyerRes_noarg(data):
-    room = data['room']
-    socketio.emit('ResPileFaceNoArg', 'pile' if random.randint(0,1)==0 else 'face', to=room)
-
-
 @socketio.on('resetRoomNoArg')
 def reset_room_noarg(data):
     room = data['room']
