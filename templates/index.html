@@ -219,7 +219,9 @@
 
     <div id="JeuxContaineur">
         <form action="{{ url_for('client') }}" method="get">
-            <button type="submit">Qui de nous ?</button>
+            <button type="submit" class="NoArg-btn">
+                <img src="{{ url_for('static', filename='QuienDeNous.png') }}"
+                     alt="QuienDeNous">
         </form>
 
         <form action="{{ url_for('casino') }}" method="get">
@@ -232,7 +234,7 @@
         <form action="{{ url_for('noArg') }}" method="get">
             <button type="submit" class="NoArg-btn">
                 <img src="{{ url_for('static', filename='BtnNA.png') }}"
-                     alt="Casino">
+                     alt="NoArgumento">
             </button>
         </form>
     </div>
